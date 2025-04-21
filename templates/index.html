@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Controle de Estoque</h1>
+
+        <!-- Formulário de Pesquisa -->
+        <form action="/" method="POST" class="search-form">
+            <input type="text" name="query" value="{{ query }}" placeholder="Pesquisar por produto...">
+            <button type="submit">🔍 Pesquisar</button>
+        </form>
+
+        <!-- Formulário para Adicionar Produto -->
+        <h2>Adicionar Produto</h2>
+        <form action="/adicionar" method="POST">
+            <input type="text" name="nome" placeholder="Nome do produto" required>
+            <input type="number" name="quantidade" placeholder="Quantidade" required>
+            <input type="number" name="preco" placeholder="Preço" required step="0.01">
+            <input type="text" name="retirado_por" placeholder="Retirado por" required>
+            <input type="date" name="data_retirada" required>
+            <button type="submit">Adicionar Produto</button>
+        </form>
+
+        <div class="dashboard-buttons">
+            <a href="{{ url_for('exportar_excel') }}" class="button">Exportar Excel</a>
+            <a href="{{ url_for('exportar_pdf') }}" class="button">Exportar PDF</a>
+        </div>
+
+        <!-- Tabela de Produtos -->
+        <table class="estoque-tabela">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>Retirado por</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr class="table-row">
+                    <td>{{ produto.nome }}</td>
+                    <td>{{ produto.quantidade }}</td>
+                    <td>R$ {{ "%.2f"|format(produto.preco) }}</td>
+                    <td>{{ produto.retirado_por }}</td>
+                    <td>{{ produto.data_retirada }}</td>
+                    <td><a href="{{ url_for('remover', index=loop.index0) }}" class="remove-button">Remover</a></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">Nenhum produto encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Paginação -->
+        <div class="pagination">
+            {% if page > 1 %}
+            <a href="{{ url_for('index', page=page-1, query=query) }}">&#8592; Anterior</a>
+            {% endif %}
+            <span>Página {{ page }} de {{ total_paginas }}</span>
+            {% if page < total_paginas %}
+            <a href="{{ url_for('index', page=page+1, query=query) }}">Próximo &#8594;</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
